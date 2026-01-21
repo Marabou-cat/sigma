@@ -3,97 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kiosk Browser + Proxy</title>
+    <title>Study</title>
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; font-family: sans-serif; background-color: #121212; overflow: hidden; }
+        /* CSS: Dark Mode Browser Look */
+        body, html { margin: 0; padding: 0; height: 100%; background: #121212; font-family: sans-serif; overflow: hidden; }
         
-        /* Dark Mode UI */
         .omnibox {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            background-color: #1e1e1e;
-            border-bottom: 1px solid #333;
-            height: 60px;
-            box-sizing: border-box;
+            display: flex; gap: 10px; padding: 12px;
+            background: #1e1e1e; border-bottom: 1px solid #333;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
         #url-input {
-            flex-grow: 1;
-            padding: 12px 20px;
-            border-radius: 25px;
-            border: 1px solid #333;
-            background-color: #2c2c2c;
-            color: white;
-            font-size: 16px;
-            outline: none;
-            margin-right: 10px;
+            flex-grow: 1; padding: 12px 20px;
+            border-radius: 8px; border: 1px solid #333;
+            background: #2c2c2c; color: #fff; font-size: 16px; outline: none;
         }
 
         #go-btn {
-            padding: 10px 25px;
-            border-radius: 25px;
-            border: none;
-            background-color: #fe2c55; /* TikTok Red */
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
+            padding: 10px 25px; border-radius: 8px; border: none;
+            background: #fe2c55; color: white; font-weight: bold; cursor: pointer;
         }
-        
-        #go-btn:hover { background-color: #e0244a; }
+        #go-btn:hover { background: #e0244a; }
 
-        /* The Frame */
+        /* The Viewport */
         #browser-frame {
-            width: 100%;
-            height: calc(100% - 60px);
-            border: none;
-            background-color: #000;
+            width: 100%; height: calc(100% - 70px);
+            border: none; background: white;
+            display: block;
         }
     </style>
 </head>
 <body>
 
     <div class="omnibox">
-        <input type="text" id="url-input" placeholder="Type 'tiktok.com'..." />
-        <button id="go-btn">Go</button>
+        <input type="text" id="url-input" placeholder="Enter URL (e.g. tiktok.com)..." />
+        <button id="go-btn">GO</button>
     </div>
 
     <iframe id="browser-frame" src="about:blank"></iframe>
 
     <script>
+        // CONFIGURATION:
+        // If you are running locally, keep this as localhost.
+        // If you upload server.js to Render, put that URL here (e.g., https://my-app.onrender.com)
+        const BACKEND_URL = "http://localhost:3000"; 
+
         const input = document.getElementById('url-input');
         const frame = document.getElementById('browser-frame');
         const btn = document.getElementById('go-btn');
 
         function navigate() {
-            let url = input.value.trim();
-            if (!url) return;
+            let target = input.value.trim();
+            if (!target) return;
 
-            // Auto-complete https
-            if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                url = 'https://' + url;
-            }
+            // Ensure protocol exists
+            if (!target.startsWith('http')) target = 'https://' + target;
 
-            // *** THE TIKTOK FIX ***
-            // Basic proxies fail with TikTok. You need a specialized "Ultraviolet" proxy.
-            // If the user tries to load TikTok, we route it differently.
+            // Construct the Proxy URL
+            // We send the target URL to our backend as a parameter
+            const finalLink = `${BACKEND_URL}/proxy?url=${encodeURIComponent(target)}`;
             
-            if (url.includes('tiktok.com') || url.includes('youtube.com')) {
-                // WARN: You must find a working "Ultraviolet" public url or host your own.
-                // Search "Ultraviolet public proxy list" on Google to find one.
-                // Replace the URL below with a working instance you find.
-                
-                const proxyBase = "https://tomp.app/"; // Example of a popular public proxy service
-                
-                // Most UV proxies work by appending the base64 encoded URL
-                // Note: The specific format depends on the proxy provider.
-                frame.src = proxyBase; 
-                
-                alert("Loading via Proxy... You will need to type the URL again inside the proxy window that appears.");
-            } else {
-                // Standard direct load (works for Wikipedia, Bing, etc.)
-                frame.src = url;
-            }
+            console.log("Loading via Proxy:", finalLink);
+            frame.src = finalLink;
         }
 
         btn.addEventListener('click', navigate);
