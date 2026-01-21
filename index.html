@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiosk Browser</title>
+    <style>
+        /* CSS: Makes the app look like a full-screen browser */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #202124;
+            overflow: hidden; /* Prevents double scrollbars */
+        }
+
+        /* The Top Navigation Bar */
+        .omnibox {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: #35363a;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            height: 50px;
+            box-sizing: border-box;
+        }
+
+        /* The URL Input Field */
+        #url-input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: none;
+            background-color: #202124;
+            color: white;
+            font-size: 14px;
+            outline: none;
+            margin-right: 10px;
+        }
+
+        #url-input:focus {
+            background-color: #303134;
+            box-shadow: 0 0 0 2px #8ab4f8;
+        }
+
+        /* The Go Button */
+        #go-btn {
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: none;
+            background-color: #8ab4f8;
+            color: #202124;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        #go-btn:hover {
+            background-color: #a6c8ff;
+        }
+
+        /* The Browser Window (Iframe) */
+        #browser-frame {
+            width: 100%;
+            height: calc(100% - 50px); /* Subtract header height */
+            border: none;
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="omnibox">
+        <input type="text" id="url-input" placeholder="Enter URL (e.g., wikipedia.org)..." />
+        <button id="go-btn">Go</button>
+    </div>
+
+    <iframe id="browser-frame" src="about:blank"></iframe>
+
+    <script>
+        const input = document.getElementById('url-input');
+        const frame = document.getElementById('browser-frame');
+        const btn = document.getElementById('go-btn');
+
+        // Logic to handle the navigation
+        function navigate() {
+            let url = input.value.trim();
+
+            if (!url) return;
+
+            // 1. Basic Protocol Check: Add https:// if missing
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+
+            // 2. THE PROXY CONNECTION
+            // Standard websites (Google, YouTube) block iframes via 'X-Frame-Options'.
+            // To fix this, you usually need to prefix the URL with a proxy service.
+            
+            // EXAMPLE ONLY: Using a public CORS proxy for demonstration. 
+            // For a robust kiosk, you would replace this prefix with your own backend URL.
+            // const proxyPrefix = "https://corsproxy.io/?"; 
+            
+            // For now, we will try direct loading (works for Wikipedia, Bing, etc.)
+            // If you have a backend, change this line to: frame.src = proxyPrefix + encodeURIComponent(url);
+            frame.src = url; 
+        }
+
+        // Event Listeners
+        btn.addEventListener('click', navigate);
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') navigate();
+        });
+    </script>
+</body>
+</html>
